@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -24,5 +25,13 @@ Route::prefix('v1')->group(function () {
             'laravel'  => app()->version(),
             'database' => $database,
         ]);
+    });
+
+    Route::prefix('auth')->group(function () {
+        Route::get('/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+            ->whereIn('provider', ['google', 'discord']);
+
+        Route::get('/{provider}/callback', [SocialAuthController::class, 'callback'])
+            ->whereIn('provider', ['google', 'discord']);
     });
 });
