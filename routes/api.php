@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Auth\SessionController;
+use App\Http\Middleware\EnsureUserIsActive;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -33,5 +35,12 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/{provider}/callback', [SocialAuthController::class, 'callback'])
             ->whereIn('provider', ['google', 'discord']);
+
+        Route::post('/exchange', [SessionController::class, 'exchange']);
+    });
+
+    Route::middleware(['auth:sanctum', EnsureUserIsActive::class])->group(function () {
+        Route::get('/me', [SessionController::class, 'me']);
+        Route::post('/auth/logout', [SessionController::class, 'logout']);
     });
 });

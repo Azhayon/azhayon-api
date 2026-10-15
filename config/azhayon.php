@@ -8,4 +8,6 @@ return [
     ],
     
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
+    'token_ttl_days' => (int) env('AUTH_TOKEN_TTL_DAYS', 30),
 ];
