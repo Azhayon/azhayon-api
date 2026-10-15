@@ -16,6 +16,12 @@ class Post extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $attributes = [
+        'post_type' => 'news',
+        'status' => 'draft',
+        'noindex' => false,
+    ];
+
     // Counters (view_count, rating_avg, rating_count, reading_time_minutes) are
     // system-managed and intentionally NOT fillable.
     protected $fillable = [

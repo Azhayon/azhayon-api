@@ -14,6 +14,10 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
+    protected $attributes = [
+        'role' => 'user',
+    ];
+
     // role and banned_at are intentionally NOT fillable.
     protected $fillable = [
         'name',

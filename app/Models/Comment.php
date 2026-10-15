@@ -15,6 +15,11 @@ class Comment extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $attributes = [
+        'status' => 'pending',
+        'is_spoiler' => false,
+    ];
+    
     // status is moderation-controlled and intentionally NOT fillable.
     protected $fillable = [
         'post_id',
