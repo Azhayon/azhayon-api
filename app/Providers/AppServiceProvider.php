@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,6 +34,26 @@ class AppServiceProvider extends ServiceProvider
         // Registers the community Discord driver with Socialite.
         Event::listen(function (SocialiteWasCalled $event) {
             $event->extendSocialite('discord', \SocialiteProviders\Discord\Provider::class);
+        });
+
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(300)->by($request->ip());
+        });
+
+        // Browser-facing OAuth routes: on failure, send the visitor back to the site.
+        RateLimiter::for('auth-browser', function (Request $request) {
+            return Limit::perMinute(30)
+                ->by($request->ip())
+                ->response(function () {
+                    $base = rtrim((string) config('azhayon.frontend_url'), '/');
+
+                    return redirect()->away($base.'/auth/callback?error=rate_limited');
+                });
+        });
+
+        // Server-to-server code exchange, called by Next.js.
+        RateLimiter::for('auth-exchange', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip());
         });
     }
 }

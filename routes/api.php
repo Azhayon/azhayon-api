@@ -11,7 +11,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/health', function () {
         try {
             DB::connection()->getPdo();
@@ -30,13 +30,16 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('auth')->group(function () {
-        Route::get('/{provider}/redirect', [SocialAuthController::class, 'redirect'])
-            ->whereIn('provider', ['google', 'discord']);
+        Route::middleware('throttle:auth-browser')->group(function () {
+            Route::get('/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+                ->whereIn('provider', ['google', 'discord']);
 
-        Route::get('/{provider}/callback', [SocialAuthController::class, 'callback'])
-            ->whereIn('provider', ['google', 'discord']);
+            Route::get('/{provider}/callback', [SocialAuthController::class, 'callback'])
+                ->whereIn('provider', ['google', 'discord']);
+        });
 
-        Route::post('/exchange', [SessionController::class, 'exchange']);
+        Route::post('/exchange', [SessionController::class, 'exchange'])
+            ->middleware('throttle:auth-exchange');
     });
 
     Route::middleware(['auth:sanctum', EnsureUserIsActive::class])->group(function () {
