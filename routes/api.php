@@ -43,4 +43,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [SessionController::class, 'me']);
         Route::post('/auth/logout', [SessionController::class, 'logout']);
     });
+
+    Route::get('/login', function () {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    })->name('login');
 });
