@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /api/
+Disallow: /admin
+Disallow: /livewire
+Allow: /uploads/

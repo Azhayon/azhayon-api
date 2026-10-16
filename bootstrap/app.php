@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return '/login';
         });
+        
+        $middleware->append(\App\Http\Middleware\NoIndexResponses::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Every API response, including errors, is JSON

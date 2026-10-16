@@ -9,10 +9,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery;
 
     protected $attributes = [
         'role' => 'user',
@@ -31,6 +38,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'app_authentication_secret',
+        'app_authentication_recovery_codes',
     ];
 
     protected function casts(): array
@@ -40,6 +49,8 @@ class User extends Authenticatable
             'banned_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'app_authentication_secret' => 'encrypted',
+            'app_authentication_recovery_codes' => 'encrypted:array',
         ];
     }
 
@@ -70,6 +81,12 @@ class User extends Authenticatable
 
     public function isBanned(): bool
     {
-        return $this->banned_at !== null;
+        return array_key_exists('banned_at', $this->attributes) 
+            && $this->attributes['banned_at'] !== null;
+    }
+    /** Staff only, and never banned or deleted accounts. */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->isStaff() && ! $this->isBanned() && ! $this->trashed();
     }
 }

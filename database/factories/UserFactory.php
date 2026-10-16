@@ -26,6 +26,8 @@ class UserFactory extends Factory
             'provider_name' => fake()->randomElement(['google', 'discord']),
             'provider_id' => (string) fake()->unique()->numberBetween(10_000_000, 999_999_999),
             'remember_token' => Str::random(10),
+            'banned_at' => null,
+            'deleted_at' => null,
         ];
     }
 
