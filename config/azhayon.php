@@ -6,6 +6,14 @@ return [
         'email' => env('ADMIN_EMAIL'),
         'password' => env('ADMIN_PASSWORD'),
     ],
+
+    'images' => [
+        'widths' => [1600, 1200, 768, 480],
+        'quality' => 80,
+        'max_bytes' => 5 * 1024 * 1024,
+        'max_megapixels' => 24,
+        'min_width' => 320,
+    ],
     
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 

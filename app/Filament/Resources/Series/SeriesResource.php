@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Series;
 use App\Filament\Resources\Series\Pages\ManageSeries;
 use App\Models\Series;
 use BackedEnum;
+use App\Filament\Support\ImageUpload;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -59,6 +61,10 @@ class SeriesResource extends Resource
                 ->maxLength(5000)
                 ->helperText('Shown on the franchise hub page.')
                 ->columnSpanFull(),
+            ImageUpload::make('cover_image')
+                ->label('Cover image')
+                ->helperText('JPEG, PNG or WebP, up to 5 MB, at least 320 px wide. It is converted to WebP automatically.')
+                ->columnSpanFull(),
             TextInput::make('meta_title')
                 ->maxLength(255)
                 ->helperText('Optional. Defaults to the title. Around 50 to 60 characters works best.'),
@@ -74,6 +80,12 @@ class SeriesResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('cover_thumb')
+                    ->label('Cover')
+                    ->disk('uploads')
+                    ->visibility('public')
+                    ->square()
+                    ->imageSize(48),
                 TextColumn::make('title')->searchable()->sortable(),
                 TextColumn::make('slug')->searchable()->sortable(),
                 TextColumn::make('posts_count')->counts('posts')->label('Posts')->sortable(),
