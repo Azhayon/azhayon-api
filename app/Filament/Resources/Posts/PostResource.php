@@ -37,6 +37,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use App\Filament\RichContent\Blocks\AdBreakBlock;
+use App\Filament\RichContent\Blocks\ImageBlock;
+use App\Filament\RichContent\Blocks\SpoilerBlock;
+use App\Filament\RichContent\Blocks\XPostBlock;
+use App\Filament\RichContent\Blocks\YouTubeBlock;
+use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Gate;
@@ -119,6 +125,26 @@ class PostResource extends Resource
                                 ->rows(3)
                                 ->maxLength(300)
                                 ->helperText('Shown on cards and used as the description when the SEO field is empty.')
+                                ->columnSpanFull(),
+                            RichEditor::make('content')
+                                ->json()
+                                ->toolbarButtons([
+                                    ['bold', 'italic', 'link'],
+                                    ['h2', 'h3', 'h4'],
+                                    ['blockquote', 'bulletList', 'orderedList', 'horizontalRule'],
+                                    ['undo', 'redo'],
+                                ])
+                                ->customBlocks([
+                                    ImageBlock::class,
+                                    YouTubeBlock::class,
+                                    XPostBlock::class,
+                                    SpoilerBlock::class,
+                                    AdBreakBlock::class,
+                                ])
+                                ->customBlocksGrid()
+                                ->activePanel('customBlocks')
+                                ->minHeight('24rem')
+                                ->stickyToolbar()
                                 ->columnSpanFull(),
                             Select::make('post_type')
                                 ->options(collect(PostType::cases())->mapWithKeys(

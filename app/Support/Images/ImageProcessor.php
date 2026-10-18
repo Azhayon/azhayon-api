@@ -166,6 +166,25 @@ class ImageProcessor
         return ['width' => $size[0], 'height' => $size[1]];
     }
 
+    public function url(string $path): string
+    {
+        return Storage::disk('uploads')->url($path);
+    }
+
+    /** URL of the smallest variant, or null when the reference is missing or invalid. */
+    public function previewUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        try {
+            return $this->url($this->smallestVariant($path));
+        } catch (InvalidImageException) {
+            return null;
+        }
+    }
+    
     /** Deletes every variant of an image. Not used automatically yet. */
     public function delete(string $path): void
     {
