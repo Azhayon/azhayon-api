@@ -11,10 +11,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\HasProcessedImages;
+use App\Observers\PostObserver;
+use App\Support\Images\ImageProcessor;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
+#[ObservedBy([PostObserver::class])]
 class Post extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasProcessedImages, SoftDeletes;
 
     protected $attributes = [
         'post_type' => 'news',
@@ -62,11 +68,6 @@ class Post extends Model
         ];
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
@@ -108,5 +109,22 @@ class Post extends Model
         return $query
             ->where('status', PostStatus::Published->value)
             ->where('published_at', '<=', now());
+    }
+
+    /** @return array<string, array{0: ?string, 1: ?string}> */
+    protected function processedImageFields(): array
+    {
+        return [
+            'featured_image' => ['featured_image_width', 'featured_image_height'],
+            'og_image' => [null, null],
+        ];
+    }
+
+    /** Smallest variant of the featured image, for admin table thumbnails. */
+    protected function featuredThumb(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->featured_image
+            ? app(ImageProcessor::class)->smallestVariant($this->featured_image)
+            : null);
     }
 }

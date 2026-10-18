@@ -14,6 +14,13 @@ return [
         'max_megapixels' => 24,
         'min_width' => 320,
     ],
+
+    'paths' => [
+        'post' => '/blog',
+    ],
+
+    // Timezone shown in the admin when picking publish times (stored as UTC).
+    'admin_timezone' => env('ADMIN_TIMEZONE', 'Asia/Dhaka'),
     
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
