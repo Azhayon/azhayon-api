@@ -7,12 +7,16 @@ use App\Models\Post;
 use App\Models\Redirect;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
+use App\Support\Content\ContentNormalizer;
+use App\Support\Content\InvalidContentException;
+use Illuminate\Validation\ValidationException;
 
 class PostObserver
 {
     public function saving(Post $post): void
     {
         $this->guardPublishing($post);
+        $this->normalizeContent($post);
 
         if ($post->status === PostStatus::Published && $post->published_at === null) {
             $post->published_at = now();
@@ -45,6 +49,46 @@ class PostObserver
         if ($touchesPublishing && ! $user->can('publish', $post)) {
             throw new AuthorizationException('Only admins can publish, schedule or unpublish posts.');
         }
+    }
+
+    /**
+     * Cleans the editor's content, records the reading time and makes sure live
+     * or scheduled posts are not empty. The admin form checks the same rules
+     * earlier; this is the backstop for every other way of saving.
+     */
+    private function normalizeContent(Post $post): void
+    {
+        if (! $post->exists || $post->isDirty('content')) {
+            try {
+                $result = app(ContentNormalizer::class)->normalize($post->content);
+            } catch (InvalidContentException $e) {
+                throw ValidationException::withMessages($this->contentErrors($e->messages()));
+            }
+
+            $post->content = $result->isEmpty ? null : $result->document;
+            $post->reading_time_minutes = $result->readingTimeMinutes();
+            $isEmpty = $result->isEmpty;
+        } else {
+            $isEmpty = empty($post->content);
+        }
+
+        $needsContent = in_array($post->status, [PostStatus::Published, PostStatus::Scheduled], true);
+
+        if ($needsContent && $isEmpty) {
+            throw ValidationException::withMessages(
+                $this->contentErrors(['Published and scheduled posts need some content.'])
+            );
+        }
+    }
+
+    /**
+     * @param  list<string>  $messages
+     * @return array<string, list<string>>
+     */
+    private function contentErrors(array $messages): array
+    {
+        // "data.content" is the key the admin form shows under the editor.
+        return ['content' => $messages, 'data.content' => $messages];
     }
 
     /**

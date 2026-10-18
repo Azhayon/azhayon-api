@@ -78,7 +78,12 @@ class PostPublishingTest extends TestCase
         $admin = $this->user('admin');
         $this->actingAs($admin);
 
-        $post = Post::create($this->attributes($admin, ['title' => 'T', 'slug' => 't', 'status' => 'published']));
+        $post = Post::create($this->attributes($admin, [
+            'title' => 'T',
+            'slug' => 't',
+            'status' => 'published',
+            'content' => ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Hello']]]]],
+        ]));
 
         $this->assertSame(PostStatus::Published, $post->fresh()->status);
         $this->assertNotNull($post->fresh()->published_at);

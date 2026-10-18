@@ -10,6 +10,7 @@ use App\Filament\Resources\Posts\Pages\ListPosts;
 use App\Filament\Support\ImageUpload;
 use App\Models\Post;
 use App\Models\Redirect;
+use App\Rules\ValidPostContent;
 use BackedEnum;
 use Closure;
 use Filament\Actions\BulkActionGroup;
@@ -132,6 +133,7 @@ class PostResource extends Resource
                                     ['bold', 'italic', 'link'],
                                     ['h2', 'h3', 'h4'],
                                     ['blockquote', 'bulletList', 'orderedList', 'horizontalRule'],
+                                    ['customBlocks'],
                                     ['undo', 'redo'],
                                 ])
                                 ->customBlocks([
@@ -142,7 +144,7 @@ class PostResource extends Resource
                                     AdBreakBlock::class,
                                 ])
                                 ->customBlocksGrid()
-                                ->activePanel('customBlocks')
+                                ->rule(new ValidPostContent)
                                 ->minHeight('24rem')
                                 ->stickyToolbar()
                                 ->columnSpanFull(),
