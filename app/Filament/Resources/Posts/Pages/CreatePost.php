@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Posts\Pages;
 
 use App\Filament\Resources\Posts\PostResource;
+use App\Filament\Actions\LinkFinderAction;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreatePost extends CreateRecord
@@ -14,5 +15,10 @@ class CreatePost extends CreateRecord
         $data['author_id'] = auth()->id();
 
         return $data;
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [LinkFinderAction::make()];
     }
 }

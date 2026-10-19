@@ -6,6 +6,7 @@ use App\Support\Embeds\XPost;
 use App\Support\Embeds\YouTube;
 use App\Support\Images\ImageProcessor;
 use App\Support\Images\InvalidImageException;
+use App\Support\Links\OwnSite;
 
 /**
  * Checks an editor document against the allowlist and rebuilds it clean.
@@ -294,7 +295,7 @@ class ContentNormalizer
             return null;
         }
 
-        return $href;
+        return OwnSite::relative($href) ?? $href;
     }
 
     /**

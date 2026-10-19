@@ -301,4 +301,16 @@ class ContentNormalizerTest extends TestCase
         $this->assertTrue($good->passes());
         $this->assertTrue($bad->fails());
     }
+
+    public function test_links_to_our_own_site_become_relative(): void
+    {
+        $link = fn (string $href) => $this->clean($this->doc($this->paragraph(
+            $this->text('x', [['type' => 'link', 'attrs' => ['href' => $href]]])
+        )))[0]['content'][0]['marks'][0]['attrs']['href'] ?? null;
+
+        $this->assertSame('/blog/some-post?x=1#top', $link('http://localhost:3000/blog/some-post?x=1#top'));
+        $this->assertSame('/', $link('https://localhost:3000'));
+        $this->assertSame('/blog/a', $link('https://www.localhost/blog/a'));
+        $this->assertSame('https://localhost.evil.com/blog/a', $link('https://localhost.evil.com/blog/a'));
+    }
 }

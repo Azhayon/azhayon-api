@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\HasProcessedImages;
 use App\Observers\PostObserver;
 use App\Support\Images\ImageProcessor;
+use App\Support\Seo\PostAuditor;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
@@ -126,5 +127,11 @@ class Post extends Model
         return Attribute::get(fn (): ?string => $this->featured_image
             ? app(ImageProcessor::class)->smallestVariant($this->featured_image)
             : null);
+    }
+
+    /** @return list<string> Plain-language SEO and link problems, for the content health page. */
+    protected function auditMessages(): Attribute
+    {
+        return Attribute::get(fn (): array => app(PostAuditor::class)->messages($this));
     }
 }
