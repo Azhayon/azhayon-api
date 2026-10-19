@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -88,5 +89,20 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isStaff() && ! $this->isBanned() && ! $this->trashed();
+    }
+
+    protected function accountStatus(): Attribute
+    {
+        return Attribute::get(fn (): string => $this->trashed()
+            ? 'Deleted'
+            : ($this->isBanned() ? 'Banned' : 'Active'));
+    }
+
+    /** Reads the raw column so the secret is never decrypted just to show a label. */
+    protected function twoFactorStatus(): Attribute
+    {
+        return Attribute::get(fn (): string => ! $this->isStaff()
+            ? '—'
+            : ($this->getRawOriginal('app_authentication_secret') !== null ? 'On' : 'Off'));
     }
 }

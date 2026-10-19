@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Category;
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\Settings\AdSettings;
 use Illuminate\Database\Seeder;
 
 /**
@@ -41,7 +42,7 @@ class BaseDataSeeder extends Seeder
     {
         // Created only if missing, so reseeding never overwrites admin changes.
         $defaults = [
-            'ads' => ['sidebar' => false, 'in_article' => false, 'anchor' => false],
+            AdSettings::KEY => AdSettings::defaults(),
             'site' => [
                 'name' => 'Azhayon Media',
                 'tagline' => 'Movies, anime, manhwa and manga: news, reviews and guides.',
