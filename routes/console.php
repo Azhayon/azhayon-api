@@ -12,3 +12,4 @@ Schedule::command('sanctum:prune-expired --hours=24')->daily();
 Schedule::command('posts:publish-due')->everyMinute();
 Schedule::command('links:check-external')->everyTenMinutes()->withoutOverlapping();
 Schedule::command('links:index')->weekly();
+Schedule::command('images:clean-orphans --force')->weekly()->withoutOverlapping();

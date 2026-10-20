@@ -18,7 +18,8 @@
 /public/fonts/filament
 /public/hot
 /public/js/filament
-/public/uploads
+/public/uploads/*
+!/public/uploads/.htaccess
 /public/storage
 /storage/*.key
 /storage/pail

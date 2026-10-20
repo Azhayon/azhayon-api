@@ -1,0 +1,12 @@
+# Images only. Never run code from this folder, never list it, and cache hard:
+# every upload gets a new random folder, so a cached file can never go stale.
+Options -Indexes
+
+<FilesMatch "\.(php[0-9]?|phtml|phar|pl|py|cgi|sh)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
