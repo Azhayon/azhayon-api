@@ -19,6 +19,11 @@ return [
         'post' => '/blog',
     ],
 
+    'link_checker' => [
+        'delay_ms' => 250,
+        'user_agent' => 'AzhayonMediaLinkChecker/1.0 (+'.env('FRONTEND_URL', 'https://azhayonmedia.com').')',
+    ],
+
     // Timezone shown in the admin when picking publish times (stored as UTC).
     'admin_timezone' => env('ADMIN_TIMEZONE', 'Asia/Dhaka'),
     

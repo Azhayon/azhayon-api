@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Redirect;
 use App\Models\User;
+use App\Models\LinkCheck;
 use App\Support\Seo\PostAuditor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -152,5 +153,34 @@ class PostAuditorTest extends TestCase
             'Link /blog/old-one redirects to /blog/live-one; update it to the new address.',
             'Broken link: /blog/missing-two does not match a published post.',
         ], $messages);
+    }
+
+    private function linkCheck(string $url, array $attributes): void
+    {
+        (new LinkCheck)->forceFill(array_merge([
+            'url_hash' => LinkCheck::hash($url),
+            'url' => $url,
+        ], $attributes))->save();
+    }
+
+    public function test_outside_link_problems_come_from_the_link_checks(): void
+    {
+        $this->linkCheck('https://example.com/dead', ['status' => 'broken', 'http_status' => 404, 'failures' => 2]);
+        $this->linkCheck('https://example.com/new-home', ['status' => 'moved', 'final_url' => 'https://example.com/home']);
+        $this->linkCheck('https://example.com/flaky', ['status' => 'failing', 'failures' => 1]);
+        $this->linkCheck('https://example.com/fine', ['status' => 'ok']);
+
+        $post = $this->made(['content' => $this->doc([
+            'https://example.com/dead',
+            'https://example.com/new-home#section',
+            'https://example.com/flaky',
+            'https://example.com/fine',
+            'https://example.com/never-checked',
+        ])]);
+
+        $this->assertSame([
+            'External link is broken: https://example.com/dead (HTTP 404).',
+            'External link moved: https://example.com/new-home now redirects to https://example.com/home; consider updating it.',
+        ], $this->auditor->messages($post));
     }
 }

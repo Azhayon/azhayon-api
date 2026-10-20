@@ -9,6 +9,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use App\Support\Content\ContentNormalizer;
 use App\Support\Content\InvalidContentException;
+use App\Support\Links\LinkRegistry;
 use Illuminate\Validation\ValidationException;
 
 class PostObserver
@@ -26,6 +27,15 @@ class PostObserver
     public function updated(Post $post): void
     {
         $this->redirectOldSlug($post);
+    }
+
+    /** Puts the outside links of a live post on the checking list. */
+    public function saved(Post $post): void
+    {
+        if ($post->status === PostStatus::Published
+            && ($post->wasRecentlyCreated || $post->wasChanged(['content', 'status']))) {
+            app(LinkRegistry::class)->register($post);
+        }
     }
 
     /**

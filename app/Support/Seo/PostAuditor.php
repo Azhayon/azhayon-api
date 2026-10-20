@@ -4,6 +4,8 @@ namespace App\Support\Seo;
 
 use App\Models\Post;
 use App\Models\Redirect;
+use App\Models\LinkCheck;
+use App\Support\Links\LinkRegistry;
 use App\Support\Links\OwnSite;
 
 class PostAuditor
@@ -45,7 +47,7 @@ class PostAuditor
             $messages[] = 'Hidden from search engines (noindex).';
         }
 
-        return [...$messages, ...$this->linkMessages($post)];
+        return [...$messages, ...$this->linkMessages($post), ...$this->externalLinkMessages($post)];
     }
 
     /**
@@ -133,6 +135,46 @@ class PostAuditor
             $extra = count($messages) - self::MAX_LINK_MESSAGES;
             $messages = array_slice($messages, 0, self::MAX_LINK_MESSAGES);
             $messages[] = "…and {$extra} more link problems.";
+        }
+
+        return $messages;
+    }
+
+    /** @return list<string> */
+    private function externalLinkMessages(Post $post): array
+    {
+        $hashes = [];
+
+        foreach ($this->links(is_array($post->content) ? $post->content : null) as $href) {
+            $url = LinkRegistry::normalize($href);
+
+            if ($url !== null) {
+                $hashes[LinkCheck::hash($url)] = true;
+            }
+        }
+
+        if ($hashes === []) {
+            return [];
+        }
+
+        $messages = [];
+
+        $checks = LinkCheck::whereIn('url_hash', array_keys($hashes))
+            ->whereIn('status', [LinkCheck::BROKEN, LinkCheck::MOVED])
+            ->orderBy('url')
+            ->get();
+
+        foreach ($checks as $check) {
+            $messages[] = $check->status === LinkCheck::BROKEN
+                ? 'External link is broken: '.$check->url.' ('
+                    .($check->http_status ? 'HTTP '.$check->http_status : ($check->note ?? 'no response')).').'
+                : 'External link moved: '.$check->url.' now redirects to '.$check->final_url.'; consider updating it.';
+        }
+
+        if (count($messages) > self::MAX_LINK_MESSAGES) {
+            $extra = count($messages) - self::MAX_LINK_MESSAGES;
+            $messages = array_slice($messages, 0, self::MAX_LINK_MESSAGES);
+            $messages[] = "…and {$extra} more outside link problems.";
         }
 
         return $messages;
