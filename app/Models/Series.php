@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Concerns\HasProcessedImages;
 use App\Support\Images\ImageProcessor;
+use App\Models\Concerns\BumpsContentVersion;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Series extends Model
 {
-    use HasFactory, HasProcessedImages;
+    use BumpsContentVersion, HasFactory, HasProcessedImages;
 
     protected $table = 'series';
 

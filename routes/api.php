@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Auth\SocialAuthController;
+use App\Http\Controllers\Api\V1\SiteController;
+use App\Http\Middleware\PublicCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\SessionController;
@@ -13,6 +15,9 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/health', HealthController::class);
+    
+    Route::get('/site', SiteController::class)
+        ->middleware(PublicCache::class.':30,60,120');
 
     Route::prefix('auth')->group(function () {
         Route::middleware('throttle:auth-browser')->group(function () {

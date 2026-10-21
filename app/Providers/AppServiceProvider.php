@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Support\Http\ClientIdentity;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
@@ -37,13 +38,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(300)->by($request->ip());
+            return Limit::perMinute(300)->by(ClientIdentity::ip($request));
         });
 
         // Browser-facing OAuth routes: on failure, send the visitor back to the site.
         RateLimiter::for('auth-browser', function (Request $request) {
             return Limit::perMinute(30)
-                ->by($request->ip())
+                ->by(ClientIdentity::ip($request))
                 ->response(function () {
                     $base = rtrim((string) config('azhayon.frontend_url'), '/');
 
@@ -53,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Server-to-server code exchange, called by Next.js.
         RateLimiter::for('auth-exchange', function (Request $request) {
-            return Limit::perMinute(60)->by($request->ip());
+            return Limit::perMinute(60)->by(ClientIdentity::ip($request));
         });
     }
 }

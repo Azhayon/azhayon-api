@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\BumpsContentVersion;
 
 class Setting extends Model
 {
+    use BumpsContentVersion;
+    
     protected $primaryKey = 'key';
 
     protected $keyType = 'string';

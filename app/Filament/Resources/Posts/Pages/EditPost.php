@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Posts\Pages;
 
 use App\Filament\Resources\Posts\PostResource;
 use App\Filament\Actions\LinkFinderAction;
+use App\Support\Cache\ContentVersion;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -21,5 +22,10 @@ class EditPost extends EditRecord
             ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
+    }
+
+    protected function afterSave(): void
+    {
+        ContentVersion::bump(); // tags are saved after the post, so bump again
     }
 }

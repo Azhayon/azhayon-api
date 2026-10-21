@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\Concerns\BumpsContentVersion;
 
 class Redirect extends Model
 {
+    use BumpsContentVersion;
     // hits is incremented by application code only.
     protected $fillable = ['from_path', 'to_path', 'status_code'];
 

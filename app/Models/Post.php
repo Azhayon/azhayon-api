@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PostStatus;
 use App\Enums\PostType;
+use App\Models\Concerns\BumpsContentVersion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 #[ObservedBy([PostObserver::class])]
 class Post extends Model
 {
-    use HasFactory, HasProcessedImages, SoftDeletes;
+    use BumpsContentVersion, HasFactory, HasProcessedImages, SoftDeletes;
 
     protected $attributes = [
         'post_type' => 'news',

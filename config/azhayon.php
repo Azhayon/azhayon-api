@@ -24,6 +24,14 @@ return [
         'user_agent' => 'AzhayonMediaLinkChecker/1.0 (+'.env('FRONTEND_URL', 'https://azhayonmedia.com').')',
     ],
 
+    'api' => [
+        // Shared secret between Next.js (server side only) and this API.
+        'frontend_key' => env('FRONTEND_API_KEY'),
+        'per_page' => 12,
+        'max_per_page' => 24,
+        'cache' => ['max_age' => 60, 's_maxage' => 300, 'stale' => 600],
+    ],
+
     // Timezone shown in the admin when picking publish times (stored as UTC).
     'admin_timezone' => env('ADMIN_TIMEZONE', 'Asia/Dhaka'),
     

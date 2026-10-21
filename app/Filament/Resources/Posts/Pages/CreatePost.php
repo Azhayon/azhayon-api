@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Posts\Pages;
 
 use App\Filament\Resources\Posts\PostResource;
 use App\Filament\Actions\LinkFinderAction;
+use App\Support\Cache\ContentVersion;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreatePost extends CreateRecord
@@ -20,5 +21,10 @@ class CreatePost extends CreateRecord
     protected function getHeaderActions(): array
     {
         return [LinkFinderAction::make()];
+    }
+
+    protected function afterCreate(): void
+    {
+        ContentVersion::bump();
     }
 }
