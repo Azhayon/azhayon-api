@@ -30,6 +30,7 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] `php artisan optimize`, and re-run it after every deploy.
 - [ ] `storage/` and `bootstrap/cache/` writable; `public/uploads` writable and NOT overwritten by deploys.
 - [ ] `public/uploads/.htaccess` present (no PHP execution, long cache).
+- [ ] Keep Laravel's own `public/.htaccess` (it handles routing). The uploads one is separate.
 - [ ] Sign in at `/admin`, set up two-factor immediately, store the recovery codes.
 
 ## 4. Scheduled jobs (cron, every minute: `php /path/to/artisan schedule:run`)
@@ -47,4 +48,5 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] `/admin` loads over HTTPS; responses carry `X-Robots-Tag: noindex, nofollow`.
 - [ ] Upload a test image: four WebP variants appear under `public/uploads/YYYY/MM/<id>/`.
 - [ ] Daily database backup and a copy of `public/uploads`; uptime monitor pinging `/api/v1/health`.
+- [ ] Uploads are not executable: create `public/uploads/probe.php` containing `<?php echo 'executed';`, open `https://api.azhayonmedia.com/uploads/probe.php`: it must return 403 and never print "executed". Delete the file afterwards.
 - [ ] Delete the test post and image after checking.
