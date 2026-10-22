@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\PostController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\TagController;
+use App\Http\Controllers\Api\V1\HomeController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,6 +23,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     
     Route::get('/site', SiteController::class)
         ->middleware(PublicCache::class.':30,60,120');
+
+    Route::get('/home', HomeController::class)->middleware(PublicCache::class);
 
     Route::get('/posts', [PostController::class, 'index'])
         ->middleware(PublicCache::class);

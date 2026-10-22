@@ -37,6 +37,7 @@ return [
         'taxonomy_per_page' => 50,
         'taxonomy_max_per_page' => 100,
         'min_tag_posts' => 3,
+        'home' => ['trending' => 6, 'latest' => 8, 'popular' => 6],
     ],
 
     // Timezone shown in the admin when picking publish times (stored as UTC).
