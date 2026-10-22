@@ -72,6 +72,7 @@ class PostController extends Controller
             'rating' => $query
                 ->where('rating_count', '>=', (int) config('azhayon.api.min_ratings'))
                 ->orderByDesc('rating_avg')->orderByDesc('rating_count')->orderByDesc('published_at')->orderByDesc('id'),
+                'oldest' => $query->orderBy('published_at')->orderBy('id'),
             default => $query->orderByDesc('published_at')->orderByDesc('id'),
         };
     }

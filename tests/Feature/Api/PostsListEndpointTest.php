@@ -210,4 +210,13 @@ class PostsListEndpointTest extends TestCase
 
         $this->assertNotNull($response->headers->get('ETag'));
     }
+
+    public function test_oldest_first_is_available_for_series_hubs(): void
+    {
+        $this->makePost(['slug' => 'newest', 'published_at' => now()->subDay()]);
+        $this->makePost(['slug' => 'oldest', 'published_at' => now()->subDays(5)]);
+        $this->makePost(['slug' => 'middle', 'published_at' => now()->subDays(2)]);
+
+        $this->assertSame(['oldest', 'middle', 'newest'], $this->slugs('/api/v1/posts?sort=oldest'));
+    }
 }

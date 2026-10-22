@@ -9,6 +9,9 @@ use App\Http\Controllers\Api\V1\Auth\SessionController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Controllers\Api\V1\PostController;
+use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\TagController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,6 +25,18 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
 
     Route::get('/posts', [PostController::class, 'index'])
         ->middleware(PublicCache::class);
+
+    Route::get('/categories', [CategoryController::class, 'index'])->middleware(PublicCache::class);
+    Route::get('/categories/{slug}', [CategoryController::class, 'show'])
+        ->where('slug', '[a-z0-9-]+')->middleware(PublicCache::class);
+
+    Route::get('/tags', [TagController::class, 'index'])->middleware(PublicCache::class);
+    Route::get('/tags/{slug}', [TagController::class, 'show'])
+        ->where('slug', '[a-z0-9-]+')->middleware(PublicCache::class);
+
+    Route::get('/series', [SeriesController::class, 'index'])->middleware(PublicCache::class);
+    Route::get('/series/{slug}', [SeriesController::class, 'show'])
+        ->where('slug', '[a-z0-9-]+')->middleware(PublicCache::class);
 
     Route::get('/posts/{slug}', [PostController::class, 'show'])
         ->where('slug', '[a-z0-9-]+')

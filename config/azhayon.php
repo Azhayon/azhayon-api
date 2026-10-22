@@ -34,6 +34,9 @@ return [
         'max_per_page' => 24,
         'min_ratings' => 3,
         'cache' => ['max_age' => 60, 's_maxage' => 300, 'stale' => 600],
+        'taxonomy_per_page' => 50,
+        'taxonomy_max_per_page' => 100,
+        'min_tag_posts' => 3,
     ],
 
     // Timezone shown in the admin when picking publish times (stored as UTC).
