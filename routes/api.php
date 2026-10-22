@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\SessionController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Controllers\Api\V1\PostController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -18,6 +19,13 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     
     Route::get('/site', SiteController::class)
         ->middleware(PublicCache::class.':30,60,120');
+
+    Route::get('/posts', [PostController::class, 'index'])
+        ->middleware(PublicCache::class);
+
+    Route::get('/posts/{slug}', [PostController::class, 'show'])
+        ->where('slug', '[a-z0-9-]+')
+        ->middleware(PublicCache::class);
 
     Route::prefix('auth')->group(function () {
         Route::middleware('throttle:auth-browser')->group(function () {

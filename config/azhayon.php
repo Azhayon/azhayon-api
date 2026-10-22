@@ -17,6 +17,9 @@ return [
 
     'paths' => [
         'post' => '/blog',
+        'category' => '/category',
+        'tag' => '/tag',
+        'series' => '/series',
     ],
 
     'link_checker' => [
@@ -29,6 +32,7 @@ return [
         'frontend_key' => env('FRONTEND_API_KEY'),
         'per_page' => 12,
         'max_per_page' => 24,
+        'min_ratings' => 3,
         'cache' => ['max_age' => 60, 's_maxage' => 300, 'stale' => 600],
     ],
 
