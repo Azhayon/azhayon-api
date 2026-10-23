@@ -22,6 +22,7 @@ or `db:wipe` on the server: tests wipe the database they run against.
       `https://api.azhayonmedia.com/api/v1/auth/{google,discord}/callback` added as redirect URIs.
 - [ ] `ADMIN_TIMEZONE` (default Asia/Dhaka), `AUTH_TOKEN_TTL_DAYS` (default 30).
 - [ ] `FRONTEND_API_KEY`: 64 hex characters, identical in the Next.js server environment, never exposed to the browser (no `NEXT_PUBLIC_` prefix).
+- [ ] `REVALIDATE_SECRET`: 64 hex characters, identical in the Next.js server environment, never exposed to the browser. Different from `FRONTEND_API_KEY`. Leave `REVALIDATE_URL` empty in production (it defaults to `FRONTEND_URL/api/revalidate`).
 
 ## 3. First deploy
 - [ ] `composer install --no-dev --optimize-autoloader`
@@ -33,11 +34,13 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] `public/uploads/.htaccess` present (no PHP execution, long cache).
 - [ ] Keep Laravel's own `public/.htaccess` (it handles routing). The uploads one is separate.
 - [ ] Sign in at `/admin`, set up two-factor immediately, store the recovery codes.
+- [ ] After EVERY deploy, once the caches are rebuilt: `php artisan revalidate:all` (marks every cached frontend page as out of date).
+- [ ] `tools/` is for local development only. Never run `tools/revalidate-receiver.php` on the server.
 
 ## 4. Scheduled jobs (cron, every minute: `php /path/to/artisan schedule:run`)
 - [ ] Confirm Hostinger allows one-minute cron intervals.
 - [ ] Scheduled by the app: `posts:publish-due` (every minute), `links:check-external` (every 10 minutes),
-      `links:index` (weekly), `images:clean-orphans --force` (weekly), `cache:prune-expired` (hourly),`sanctum:prune-expired` (daily).
+      `links:index` (weekly), `images:clean-orphans --force` (weekly), `cache:prune-expired` (hourly),`sanctum:prune-expired` (daily), `revalidate:flush` (every minute).
 - [ ] Phase 5 adds the queue worker for email: `php artisan queue:work --stop-when-empty` every minute.
 
 ## 5. Proxy and rate limiting (before launch)
@@ -57,3 +60,4 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] Delete the test post and image after checking.
 - [ ] Full-text search works on the host's database: `/api/v1/search?q=<a word that appears only in a post's excerpt>` finds that post, and `/api/v1/search/suggest?q=<two letters>` returns suggestions.
 - [ ] `/api/v1/sitemap` reports the expected number of indexable posts, and `/api/v1/redirects` lists the expected redirects.
+- [ ] Edit and save a published post, wait a minute, and confirm the frontend received a revalidation request (or run `php artisan revalidate:flush` and read its output).

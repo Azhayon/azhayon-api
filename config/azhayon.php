@@ -42,6 +42,14 @@ return [
         'redirects_limit' => 5000,
     ],
 
+    'revalidate' => [
+        'secret' => env('REVALIDATE_SECRET'),
+        'url' => env('REVALIDATE_URL'), // defaults to FRONTEND_URL + /api/revalidate
+        'max_pending' => 300,           // more tags than this are sent as a single "all"
+        'max_attempts' => 60,           // about an hour of failed minutes
+        'max_age_hours' => 24,
+    ],
+
     // Timezone shown in the admin when picking publish times (stored as UTC).
     'admin_timezone' => env('ADMIN_TIMEZONE', 'Asia/Dhaka'),
     

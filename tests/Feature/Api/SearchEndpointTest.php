@@ -82,11 +82,14 @@ class SearchEndpointTest extends TestCase
 
     public function test_the_subject_is_searched_and_ranked(): void
     {
-        $this->makePost('Season review', ['subject_title' => 'Jujutsu Kaisen']);
-        $this->makePost('Fan theories', ['subject_title' => 'Jujutsu Kaisen Zero']);
+        $this->makePost('Season review', ['subject_title' => 'Jujutsu Kaisen', 'published_at' => now()->subDay()]);
+        $this->makePost('Fan theories', ['subject_title' => 'Jujutsu Kaisen Zero', 'published_at' => now()->subDays(2)]);
         $this->makePost('Something else', ['subject_title' => 'Different Show']);
 
+        // An exact subject outranks a prefix match.
         $this->assertSame(['Season review', 'Fan theories'], $this->titles('jujutsu kaisen'));
+
+        // Both only match as a prefix here, so they tie and the newest comes first.
         $this->assertSame(['Season review', 'Fan theories'], $this->titles('jujutsu'));
     }
 

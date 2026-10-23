@@ -79,4 +79,22 @@ class RedirectsEndpointTest extends TestCase
         $this->getJson('/api/v1/redirects')
             ->assertJsonPath('data', [['from' => '/blog/before', 'to' => '/blog/after', 'status' => 301]]);
     }
+
+    public function test_redirects_that_would_hide_a_live_post_are_left_out(): void
+    {
+        $author = User::factory()->create(['role' => 'admin', 'provider_name' => null, 'provider_id' => null]);
+        $category = Category::create(['name' => 'Anime', 'slug' => 'anime']);
+
+        Post::factory()->create(['author_id' => $author->id, 'category_id' => $category->id, 'slug' => 'live-post']);
+        Post::factory()->draft()->create(['author_id' => $author->id, 'category_id' => $category->id, 'slug' => 'draft-post']);
+
+        Redirect::create(['from_path' => '/blog/live-post', 'to_path' => '/elsewhere', 'status_code' => 301]);
+        Redirect::create(['from_path' => '/blog/draft-post', 'to_path' => '/elsewhere-2', 'status_code' => 301]);
+        Redirect::create(['from_path' => '/blog/long-gone', 'to_path' => '/elsewhere-3', 'status_code' => 301]);
+
+        $response = $this->getJson('/api/v1/redirects')->assertOk();
+
+        $this->assertSame(['/blog/draft-post', '/blog/long-gone'], $response->json('data.*.from'));
+        $response->assertJsonPath('meta', ['total' => 2, 'truncated' => false]);
+    }
 }
