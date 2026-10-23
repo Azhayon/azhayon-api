@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\SeriesController;
 use App\Http\Controllers\Api\V1\TagController;
 use App\Http\Controllers\Api\V1\HomeController;
+use App\Http\Controllers\Api\V1\SearchController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -44,6 +45,12 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/posts/{slug}', [PostController::class, 'show'])
         ->where('slug', '[a-z0-9-]+')
         ->middleware(PublicCache::class);
+
+    Route::get('/search', [SearchController::class, 'index'])
+        ->middleware(['throttle:search', PublicCache::class]);
+
+    Route::get('/search/suggest', [SearchController::class, 'suggest'])
+        ->middleware(['throttle:search-suggest', PublicCache::class]);
 
     Route::prefix('auth')->group(function () {
         Route::middleware('throttle:auth-browser')->group(function () {
