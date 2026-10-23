@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ListSeriesRequest;
+use App\Http\Requests\Api\NoParametersRequest;
 use App\Models\Series;
 use App\Support\Api\TaxonomyPresenter;
 use Illuminate\Database\Eloquent\Builder;
@@ -40,7 +41,7 @@ class SeriesController extends Controller
         ]);
     }
 
-    public function show(string $slug): JsonResponse
+    public function show(NoParametersRequest $request, string $slug): JsonResponse
     {
         $series = $this->query()->where('slug', $slug)->firstOrFail();
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\NoParametersRequest;
 use App\Models\Post;
 use App\Support\Api\HomeFeed;
 use App\Support\Api\PostPresenter;
@@ -11,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 
 class HomeController extends Controller
 {
-    public function __invoke(HomeFeed $feed): JsonResponse
+    public function __invoke(NoParametersRequest $request, HomeFeed $feed): JsonResponse
     {
         $sizes = config('azhayon.api.home');
         $key = "home:{$sizes['trending']}-{$sizes['latest']}-{$sizes['popular']}";

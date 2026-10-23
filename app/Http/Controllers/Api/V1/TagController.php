@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ListTagsRequest;
+use App\Http\Requests\Api\NoParametersRequest;
 use App\Models\Tag;
 use App\Support\Api\TaxonomyPresenter;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,7 +42,7 @@ class TagController extends Controller
         ]);
     }
 
-    public function show(string $slug): JsonResponse
+    public function show(NoParametersRequest $request, string $slug): JsonResponse
     {
         $tag = $this->query()->where('slug', $slug)->firstOrFail();
 

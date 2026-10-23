@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\NoParametersRequest;
 use App\Models\Category;
 use App\Support\Api\TaxonomyPresenter;
 use App\Support\Cache\ContentVersion;
@@ -11,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 
 class CategoryController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(NoParametersRequest $request): JsonResponse
     {
         $data = ContentVersion::remember('categories', 300, fn (): array => $this->query()
             ->orderBy('name')
@@ -22,7 +23,7 @@ class CategoryController extends Controller
         return response()->json(['data' => $data]);
     }
 
-    public function show(string $slug): JsonResponse
+    public function show(NoParametersRequest $request, string $slug): JsonResponse
     {
         $category = $this->query()->where('slug', $slug)->firstOrFail();
 

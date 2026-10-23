@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\NoParametersRequest;
 use App\Models\Category;
 use App\Models\Setting;
 use App\Support\Cache\ContentVersion;
@@ -15,7 +16,7 @@ class SiteController extends Controller
 
     private const DEFAULT_TAGLINE = 'Movies, anime, manhwa and manga: news, reviews and guides.';
 
-    public function __invoke(): JsonResponse
+    public function __invoke(NoParametersRequest $request): JsonResponse
     {
         $data = ContentVersion::remember('site', 300, function (): array {
             $site = Setting::get('site', []);

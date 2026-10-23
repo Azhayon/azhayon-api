@@ -44,6 +44,9 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] Configure Laravel trusted proxies for Cloudflare, otherwise every visitor shares one IP and rate limits misfire.
 - [ ] Next.js calls Laravel from one server IP: add a shared-secret header so Laravel rate-limits by the real client IP (Phase 4).
 - [ ] Per-visitor limits rely on the IP Next.js forwards. Use Cloudflare's `CF-Connecting-IP` header there, and only trust it when the site really is behind Cloudflare. Until then treat per-IP limits as best-effort.
+- [ ] The frontend's `/search` page must send `noindex, follow` and be disallowed in `robots.txt`: internal search results are thin content.
+- [ ] Verify BOTH `azhayonmedia.com` and `api.azhayonmedia.com` in Google Search Console: sitemap image entries point at images served from the API domain.
+- [ ] The Next.js middleware that applies redirects must normalise the request path (drop a trailing slash) before looking it up, since stored redirects have none.
 
 ## 6. After deploy
 - [ ] `https://api.azhayonmedia.com/api/v1/health` returns `{"status":"ok","database":"ok"}`.
@@ -52,3 +55,5 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] Daily database backup and a copy of `public/uploads`; uptime monitor pinging `/api/v1/health`.
 - [ ] Uploads are not executable: create `public/uploads/probe.php` containing `<?php echo 'executed';`, open `https://api.azhayonmedia.com/uploads/probe.php`: it must return 403 and never print "executed". Delete the file afterwards.
 - [ ] Delete the test post and image after checking.
+- [ ] Full-text search works on the host's database: `/api/v1/search?q=<a word that appears only in a post's excerpt>` finds that post, and `/api/v1/search/suggest?q=<two letters>` returns suggestions.
+- [ ] `/api/v1/sitemap` reports the expected number of indexable posts, and `/api/v1/redirects` lists the expected redirects.

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ListPostsRequest;
+use App\Http\Requests\Api\NoParametersRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Series;
@@ -53,7 +54,7 @@ class PostController extends Controller
         ]);
     }
 
-    public function show(string $slug): JsonResponse
+    public function show(NoParametersRequest $request, string $slug): JsonResponse
     {
         // Cheap indexed lookup first: only real, live posts ever get a cache entry.
         $id = Post::published()->where('slug', $slug)->value('id');
