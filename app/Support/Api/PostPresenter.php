@@ -72,7 +72,7 @@ final class PostPresenter
         $frontend = rtrim((string) config('azhayon.frontend_url'), '/');
 
         return self::card($post) + [
-            'content' => is_array($post->content) ? $post->content : ['type' => 'doc', 'content' => []],
+            'content' => self::withMedia(is_array($post->content) ? $post->content : ['type' => 'doc', 'content' => []]),
             'author' => ['name' => $post->author?->name ?? 'Azhayon Media'],
             'tags' => $post->tags
                 ->sortBy('name')
@@ -89,5 +89,49 @@ final class PostPresenter
                 'image' => ImagePresenter::url($post->og_image) ?? ImagePresenter::url($post->featured_image),
             ],
         ];
+    }
+
+    /**
+     * Adds a ready-to-render "media" object to image and spoiler blocks, so the frontend
+     * never has to rebuild image URLs or sizes from stored paths.
+     *
+     * @param  array<string, mixed>  $document
+     * @return array<string, mixed>
+     */
+    public static function withMedia(array $document): array
+    {
+        $walk = function (mixed $node) use (&$walk): mixed {
+            if (! is_array($node)) {
+                return $node;
+            }
+
+            if (($node['type'] ?? null) === 'customBlock') {
+                $id = $node['attrs']['id'] ?? null;
+                $config = $node['attrs']['config'] ?? null;
+
+                if (is_array($config) && in_array($id, ['image', 'spoiler'], true)) {
+                    $alt = $id === 'image' ? ($config['alt'] ?? null) : ($config['image_alt'] ?? null);
+
+                    $config['media'] = ImagePresenter::present(
+                        is_string($config['image'] ?? null) ? $config['image'] : null,
+                        is_int($config['width'] ?? null) ? $config['width'] : null,
+                        is_int($config['height'] ?? null) ? $config['height'] : null,
+                        is_string($alt) ? $alt : null,
+                    );
+
+                    $node['attrs']['config'] = $config;
+                }
+
+                return $node;
+            }
+
+            if (is_array($node['content'] ?? null)) {
+                $node['content'] = array_map($walk, $node['content']);
+            }
+
+            return $node;
+        };
+
+        return $walk($document);
     }
 }
