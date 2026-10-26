@@ -109,6 +109,19 @@ live posts win. The redirect middleware must drop a trailing slash from the requ
 ### Health
 `GET /health` returns `{"status":"ok","database":"ok"}`, or `503` with `degraded` and `error` when the database is down.
 
+### Draft preview (signed, never cached)
+`GET /preview/posts/{id}?expires=…&signature=…`
+
+Not part of the public cached API. Staff create the link with the admin's **Preview** button; it is valid for one hour.
+The frontend's `/preview/{id}` page forwards `expires` and `signature` unchanged and renders the result with the normal post template.
+
+- The response is a `PostDetail` plus `meta.preview` (`status`, `expires_at`). `seo.noindex` is always true.
+- A draft has no publish date: `published_at` is the time of the request, and series navigation treats the post as published now.
+- Any invalid, expired or altered link returns `403 {"message":"Invalid signature."}`; a correctly signed link to a deleted or missing post returns `404`.
+- Nothing is cached (`private, no-store`). The frontend page must also be `noindex`, send `Referrer-Policy: no-referrer`
+  (the link is a credential), use `cache: "no-store"` for the fetch and show a visible "Preview" banner.
+- Preview links are signed with the application key: rotating `APP_KEY` invalidates all of them.
+
 ## Post content
 
 `content` is a document: `{"type":"doc","content":[...]}`. The node types are in `docs/api-types.ts`.

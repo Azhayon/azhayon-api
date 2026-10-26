@@ -52,6 +52,7 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] The frontend's `/search` page must send `noindex, follow` and be disallowed in `robots.txt`: internal search results are thin content.
 - [ ] Verify BOTH `azhayonmedia.com` and `api.azhayonmedia.com` in Google Search Console: sitemap image entries point at images served from the API domain.
 - [ ] The Next.js middleware that applies redirects must normalise the request path (drop a trailing slash) before looking it up, since stored redirects have none.
+- [ ] The frontend must disallow /preview/ in robots.txt and serve it with noindex and no-store.
 
 ## 6. After deploy
 - [ ] `https://api.azhayonmedia.com/api/v1/health` returns `{"status":"ok","database":"ok"}`.
@@ -63,3 +64,4 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] Full-text search works on the host's database: `/api/v1/search?q=<a word that appears only in a post's excerpt>` finds that post, and `/api/v1/search/suggest?q=<two letters>` returns suggestions.
 - [ ] `/api/v1/sitemap` reports the expected number of indexable posts, and `/api/v1/redirects` lists the expected redirects.
 - [ ] Edit and save a published post, wait a minute, and confirm the frontend received a revalidation request (or run `php artisan revalidate:flush` and read its output).
+- [ ] Preview works end to end: open Preview on a draft in the admin, follow the link on the real site, then confirm a changed character in the signature shows an error page.

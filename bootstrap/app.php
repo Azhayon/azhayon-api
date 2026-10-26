@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Routing\Exceptions\InvalidSignatureException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -42,6 +43,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => 'Not found.'], 404);
+            }
+        });
+    })
+    
+    ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->render(function (InvalidSignatureException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Invalid signature.'], 403);
             }
         });
     })->create();

@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\RedirectController;
 use App\Http\Controllers\Api\V1\SitemapController;
+use App\Http\Controllers\Api\V1\PreviewController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -77,4 +78,11 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::get('/me', [SessionController::class, 'me']);
         Route::post('/auth/logout', [SessionController::class, 'logout']);
     });
+
+    // Throttled first, so signature guessing is limited. The id is looked up only after the
+    // signature checks out, so a missing post and a forged link look the same from outside.
+    Route::get('/preview/posts/{id}', PreviewController::class)
+        ->whereNumber('id')
+        ->middleware(['throttle:preview', 'signed:relative'])
+        ->name('preview.post');
 });

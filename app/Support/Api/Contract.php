@@ -225,6 +225,13 @@ final class Contract
             'HealthResponse' => ['status' => 'enum:ok,degraded', 'database' => 'enum:ok,error'],
             'ErrorResponse' => ['message' => 'string'],
             'ValidationErrorResponse' => ['message' => 'string', 'errors' => ['**' => ['*' => 'string']]],
+            'PreviewResponse' => [
+                'data' => '@PostDetail',
+                'meta' => ['preview' => [
+                    'status' => 'enum:draft,scheduled,published',
+                    'expires_at' => 'string',
+                ]],
+            ],
         ];
     }
 

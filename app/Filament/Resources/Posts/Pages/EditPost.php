@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Posts\Pages;
 
 use App\Filament\Resources\Posts\PostResource;
 use App\Filament\Actions\LinkFinderAction;
+use App\Filament\Actions\PreviewLinkAction;
 use App\Support\Cache\ContentVersion;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -18,6 +19,7 @@ class EditPost extends EditRecord
     {
         return [
             LinkFinderAction::make(),
+            PreviewLinkAction::make(),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),

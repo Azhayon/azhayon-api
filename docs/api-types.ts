@@ -421,3 +421,13 @@ export interface ValidationErrorResponse {
   message: string;
   errors: Record<string, string[]>;
 }
+
+export interface PreviewResponse {
+  data: PostDetail;
+  meta: {
+    preview: {
+      status: 'draft' | 'scheduled' | 'published';
+      expires_at: string;
+    };
+  };
+}
