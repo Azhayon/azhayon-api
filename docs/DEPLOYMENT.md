@@ -4,7 +4,9 @@ Run through this at the hosting gate. Never run `php artisan test`, `migrate:fre
 or `db:wipe` on the server: tests wipe the database they run against.
 
 ## 1. Server
-- [ ] PHP 8.3 selected for `api.azhayonmedia.com` (PHP 8.2 loses security support end of 2026).
+- [ ] PHP **8.3.36 or newer** (or 8.4.27 or newer) for `api.azhayonmedia.com`. Older patch levels of the same branch lack the October 2026 fix for two critical remote-code-execution flaws. PHP 8.2 stops receiving security fixes on 31 December 2026, so do not choose it.
+- [ ] Check the version two ways: in hPanel (PHP configuration) and over SSH (`php -v` inside the project folder). If they disagree, or the patch level looks old, ask Hostinger support to confirm the runtime has the fix.
+- [ ] `composer.json` pins `config.platform.php` to `8.3.0` so the lock file installs on 8.3. Change the pin if the host runs a different branch, and avoid PHP 8.4-only features (property hooks, asymmetric visibility, `array_find`, `array_any`, `mb_trim`) while production is on 8.3.
 - [ ] Extensions: intl, gd, zip, bcmath, mbstring, pdo_mysql, fileinfo, xml, curl, openssl.
 - [ ] GD has WebP: `php -r "var_dump(gd_info()['WebP Support']);"` prints `bool(true)`.
 - [ ] `memory_limit` 256M or more (24-megapixel images), `upload_max_filesize` and `post_max_size` 8M or more.
