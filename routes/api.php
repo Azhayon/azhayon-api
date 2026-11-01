@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\RedirectController;
 use App\Http\Controllers\Api\V1\SitemapController;
 use App\Http\Controllers\Api\V1\PreviewController;
+use App\Http\Controllers\Api\V1\PostViewController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -48,6 +49,10 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/posts/{slug}', [PostController::class, 'show'])
         ->where('slug', '[a-z0-9-]+')
         ->middleware(PublicCache::class);
+
+    Route::post('/posts/{slug}/view', PostViewController::class)
+        ->where('slug', '[a-z0-9-]+')
+        ->middleware('throttle:view');
 
     Route::get('/search', [SearchController::class, 'index'])
         ->middleware(['throttle:search', PublicCache::class]);

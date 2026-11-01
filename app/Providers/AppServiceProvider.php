@@ -62,5 +62,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('search-suggest', fn (Request $request) => Limit::perMinute(60)->by(ClientIdentity::ip($request)));
 
         RateLimiter::for('preview', fn (Request $request) => Limit::perMinute(30)->by(ClientIdentity::ip($request)));
+
+        RateLimiter::for('view', fn (Request $request) => Limit::perMinute(30)->by(ClientIdentity::ip($request)));
     }
 }
