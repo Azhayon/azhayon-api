@@ -1,7 +1,7 @@
 # Azhayon Media public API (v1)
 
 Base URL: `https://api.azhayonmedia.com/api/v1` (local development: `http://127.0.0.1:8000/api/v1`).
-Every endpoint here is a `GET`, needs no login and returns JSON. The exact shape of every response is defined
+Every endpoint here needs no login and returns JSON. All of them are `GET` except one `POST`, the view counter. The exact shape of every response is defined
 in `app/Support/Api/Contract.php`; the TypeScript version is `docs/api-types.ts` (generated, never edited by hand).
 Authentication endpoints (`/auth/*`, `/me`) are server-to-server only and are not part of this public contract.
 
@@ -28,7 +28,7 @@ Authentication endpoints (`/auth/*`, `/me`) are server-to-server only and are no
 |---|---|
 | Everything public except the two below | `public, max-age=60, s-maxage=300, stale-while-revalidate=600` |
 | `/site`, `/redirects` | `public, max-age=30, s-maxage=60, stale-while-revalidate=120` |
-| `/health`, errors | never marked public |
+| `/health`, `POST /posts/{slug}/view`, errors | never marked public |
 
 Successful responses carry a weak `ETag`; send it back as `If-None-Match` and an unchanged response is a
 bodyless `304`. After content changes the API tells the frontend which pages to refresh (see Revalidation).
@@ -43,7 +43,7 @@ bodyless `304`. After content changes the API tells the frontend which pages to 
 
 ## Rate limits (per visitor)
 
-300 requests a minute across the API, plus 30 a minute for `/search` and 60 a minute for `/search/suggest`.
+300 requests a minute across the API, plus 30 a minute for `/search`, 60 a minute for `/search/suggest` and 30 a minute for the view counter.
 The frontend's server calls the API from one address, so it must identify the visitor: send the secret header
 `X-Frontend-Key` together with `X-Client-IP` (the visitor's IP; behind Cloudflare use `CF-Connecting-IP`).
 The IP is only trusted when the key is correct. Never put the key in browser code.
@@ -75,6 +75,11 @@ Trending counts views from today and yesterday; when too few posts have recent v
 (title, path, `total`, `previous` and `next` in publishing order), up to 6 `related` cards, and `seo`
 (`title`, `description`, `canonical_url`, `noindex`, `image`). A renamed post's old address is a 404 here; the
 redirect list handles it.
+`POST /posts/{slug}/view` counts one view of a live post and always answers `204` with no body, whether or not the view
+was counted (drafts, deleted posts, unknown slugs and crawlers look the same). It is meant to be called by the visitor's
+browser, so the rate limit counts the real visitor, and it needs no secret key. A visitor counts once per post per day:
+the server keeps only a salted hash of address and browser, never the address. It adds to `posts.view_count` and to
+`post_views_daily`, so `popular` and `trending` both move. It never changes `updated_at`.
 
 ### Categories, tags, series
 | | |
