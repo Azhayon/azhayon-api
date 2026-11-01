@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\SitemapController;
 use App\Http\Controllers\Api\V1\PreviewController;
 use App\Http\Controllers\Api\V1\PostViewController;
 use App\Http\Controllers\Api\V1\CommentController;
+use App\Http\Controllers\Api\V1\RatingController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -91,6 +92,17 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::post('/posts/{slug}/comments', [CommentController::class, 'store'])
             ->where('slug', '[a-z0-9-]+')
             ->middleware('throttle:comment');
+
+        Route::get('/posts/{slug}/rating', [RatingController::class, 'show'])
+            ->where('slug', '[a-z0-9-]+');
+
+        Route::put('/posts/{slug}/rating', [RatingController::class, 'store'])
+            ->where('slug', '[a-z0-9-]+')
+            ->middleware('throttle:rating');
+
+        Route::delete('/posts/{slug}/rating', [RatingController::class, 'destroy'])
+            ->where('slug', '[a-z0-9-]+')
+            ->middleware('throttle:rating');
     });
 
     // Throttled first, so signature guessing is limited. The id is looked up only after the

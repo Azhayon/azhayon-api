@@ -143,6 +143,12 @@ is always `pending`: it appears in the public list only after staff approve it. 
 characters with at most 2 links; invisible characters are removed. A reply's `parent_id` must be an approved top-level
 comment on the same post. The same text from the same user on the same post within 10 minutes is refused. Limits per user: 3 a minute and 30 a day;
 per visitor address: 20 an hour. Errors: `401` not signed in, `403` banned, `404` post not live, `422` bad input, `429` limit reached.
+`GET /posts/{slug}/rating` answers `{ "data": { "score": 4, "average": 4.25, "count": 12 } }`: the signed-in user's own
+score (`null` when they have not rated), with the post's current average and number of ratings. `PUT` with
+`{ "score": 1 to 5 }` (a JSON whole number) sets or changes it, and `DELETE` removes it; all three answer `200` with the
+same shape, and deleting twice is fine. A user has one rating per post, and the post's `rating_avg` and `rating_count`
+are recomputed after every change without touching `updated_at` or queueing a revalidation, so numbers on cached pages
+catch up later. Changes are limited to 10 a minute and 200 a day per user, and 60 an hour per visitor address.
 
 ## Post content
 

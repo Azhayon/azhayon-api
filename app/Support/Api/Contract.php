@@ -176,6 +176,8 @@ final class Contract
                 'created_at' => 'string',
             ],
 
+            'MyRating' => ['score' => '?int', 'average' => 'number', 'count' => 'int'],
+
             // Taxonomy
             'Category' => $category,
             'CategoryDetail' => $category + ['seo' => $seoBasics],
@@ -234,6 +236,7 @@ final class Contract
             'PostResponse' => ['data' => '@PostDetail'],
             'CommentsResponse' => ['data' => ['*' => '@PostComment'], 'meta' => '@CommentsMeta'],
             'CommentCreatedResponse' => ['data' => '@CommentCreated'],
+            'MyRatingResponse' => ['data' => '@MyRating'],
             'CategoriesResponse' => ['data' => ['*' => '@Category']],
             'CategoryResponse' => ['data' => '@CategoryDetail'],
             'TagsResponse' => ['data' => ['*' => '@Tag'], 'meta' => '@PageMeta'],

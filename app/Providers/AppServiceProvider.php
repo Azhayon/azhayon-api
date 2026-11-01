@@ -74,6 +74,16 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('rating', function (Request $request) {
+            $who = $request->user() ? 'user:'.$request->user()->id : 'ip:'.ClientIdentity::ip($request);
+
+            return [
+                Limit::perMinute(10)->by("rating-minute:{$who}"),
+                Limit::perDay(200)->by("rating-day:{$who}"),
+                Limit::perHour(60)->by('rating-ip:'.ClientIdentity::ip($request)),
+            ];
+        });
+
         RateLimiter::for('view', fn (Request $request) => Limit::perMinute(30)->by(ClientIdentity::ip($request)));
     }
 }

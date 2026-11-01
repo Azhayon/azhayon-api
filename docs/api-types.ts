@@ -221,6 +221,12 @@ export interface CommentCreated {
   created_at: string;
 }
 
+export interface MyRating {
+  score: number | null;
+  average: number;
+  count: number;
+}
+
 export interface Category {
   name: string;
   slug: string;
@@ -390,6 +396,10 @@ export interface CommentsResponse {
 
 export interface CommentCreatedResponse {
   data: CommentCreated;
+}
+
+export interface MyRatingResponse {
+  data: MyRating;
 }
 
 export interface CategoriesResponse {
