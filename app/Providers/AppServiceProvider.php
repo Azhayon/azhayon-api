@@ -63,6 +63,17 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('preview', fn (Request $request) => Limit::perMinute(30)->by(ClientIdentity::ip($request)));
 
+        // Several limits at once: a quick burst, a daily total, and the visitor's address as a backstop.
+        RateLimiter::for('comment', function (Request $request) {
+            $who = $request->user() ? 'user:'.$request->user()->id : 'ip:'.ClientIdentity::ip($request);
+
+            return [
+                Limit::perMinute(3)->by("comment-minute:{$who}"),
+                Limit::perDay(30)->by("comment-day:{$who}"),
+                Limit::perHour(20)->by('comment-ip:'.ClientIdentity::ip($request)),
+            ];
+        });
+
         RateLimiter::for('view', fn (Request $request) => Limit::perMinute(30)->by(ClientIdentity::ip($request)));
     }
 }

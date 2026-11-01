@@ -70,6 +70,14 @@ export interface SearchMeta {
   query: string;
 }
 
+export interface CommentsMeta {
+  page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+  comments_total: number;
+}
+
 export interface CategoryRef {
   name: string;
   slug: string;
@@ -185,6 +193,32 @@ export interface SpoilerBlockConfig {
   height: number | null;
   image_alt: string | null;
   media: ApiImage | null;
+}
+
+export interface PostCommentReply {
+  id: number;
+  author: string;
+  body: string;
+  is_spoiler: boolean;
+  created_at: string;
+}
+
+export interface PostComment {
+  id: number;
+  author: string;
+  body: string;
+  is_spoiler: boolean;
+  created_at: string;
+  replies: PostCommentReply[];
+}
+
+export interface CommentCreated {
+  id: number;
+  status: 'pending' | 'approved';
+  parent_id: number | null;
+  body: string;
+  is_spoiler: boolean;
+  created_at: string;
 }
 
 export interface Category {
@@ -347,6 +381,15 @@ export interface PostsResponse {
 
 export interface PostResponse {
   data: PostDetail;
+}
+
+export interface CommentsResponse {
+  data: PostComment[];
+  meta: CommentsMeta;
+}
+
+export interface CommentCreatedResponse {
+  data: CommentCreated;
 }
 
 export interface CategoriesResponse {

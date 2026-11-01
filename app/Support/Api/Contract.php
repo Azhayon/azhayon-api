@@ -94,6 +94,14 @@ final class Contract
 
         $seoBasics = ['title' => 'string', 'description' => '?string', 'canonical_url' => 'string', 'noindex' => 'bool'];
 
+        $commentFields = [
+            'id' => 'int',
+            'author' => 'string',
+            'body' => 'string',
+            'is_spoiler' => 'bool',
+            'created_at' => 'string',
+        ];
+
         return [
             // Building blocks
             'ApiImageVariant' => ['width' => 'int', 'height' => 'int', 'url' => 'string'],
@@ -106,6 +114,7 @@ final class Contract
             ],
             'PageMeta' => $pageMeta,
             'SearchMeta' => $pageMeta + ['query' => 'string'],
+            'CommentsMeta' => $pageMeta + ['comments_total' => 'int'],
             'CategoryRef' => ['name' => 'string', 'slug' => 'string'],
             'PostRating' => ['average' => 'number', 'count' => 'int'],
 
@@ -152,6 +161,19 @@ final class Contract
                 'height' => '?int',
                 'image_alt' => '?string',
                 'media' => '?@ApiImage',
+            ],
+
+            // Comments
+            'PostCommentReply' => $commentFields,
+            'PostComment' => $commentFields + ['replies' => ['*' => '@PostCommentReply']],
+
+            'CommentCreated' => [
+                'id' => 'int',
+                'status' => 'enum:pending,approved',
+                'parent_id' => '?int',
+                'body' => 'string',
+                'is_spoiler' => 'bool',
+                'created_at' => 'string',
             ],
 
             // Taxonomy
@@ -210,6 +232,8 @@ final class Contract
             ]],
             'PostsResponse' => ['data' => ['*' => '@PostCard'], 'meta' => '@PageMeta'],
             'PostResponse' => ['data' => '@PostDetail'],
+            'CommentsResponse' => ['data' => ['*' => '@PostComment'], 'meta' => '@CommentsMeta'],
+            'CommentCreatedResponse' => ['data' => '@CommentCreated'],
             'CategoriesResponse' => ['data' => ['*' => '@Category']],
             'CategoryResponse' => ['data' => '@CategoryDetail'],
             'TagsResponse' => ['data' => ['*' => '@Tag'], 'meta' => '@PageMeta'],

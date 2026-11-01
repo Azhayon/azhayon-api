@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\RedirectController;
 use App\Http\Controllers\Api\V1\SitemapController;
 use App\Http\Controllers\Api\V1\PreviewController;
 use App\Http\Controllers\Api\V1\PostViewController;
+use App\Http\Controllers\Api\V1\CommentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -47,6 +48,10 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         ->where('slug', '[a-z0-9-]+')->middleware(PublicCache::class);
 
     Route::get('/posts/{slug}', [PostController::class, 'show'])
+        ->where('slug', '[a-z0-9-]+')
+        ->middleware(PublicCache::class);
+
+    Route::get('/posts/{slug}/comments', [CommentController::class, 'index'])
         ->where('slug', '[a-z0-9-]+')
         ->middleware(PublicCache::class);
 
@@ -82,6 +87,10 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::middleware(['auth:sanctum', EnsureUserIsActive::class])->group(function () {
         Route::get('/me', [SessionController::class, 'me']);
         Route::post('/auth/logout', [SessionController::class, 'logout']);
+
+        Route::post('/posts/{slug}/comments', [CommentController::class, 'store'])
+            ->where('slug', '[a-z0-9-]+')
+            ->middleware('throttle:comment');
     });
 
     // Throttled first, so signature guessing is limited. The id is looked up only after the

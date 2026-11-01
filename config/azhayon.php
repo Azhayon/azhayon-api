@@ -36,6 +36,8 @@ return [
         'cache' => ['max_age' => 60, 's_maxage' => 300, 'stale' => 600],
         'taxonomy_per_page' => 50,
         'taxonomy_max_per_page' => 100,
+        'comments_per_page' => 20,
+        'comments_max_per_page' => 50,
         'min_tag_posts' => 3,
         'home' => ['trending' => 6, 'latest' => 8, 'popular' => 6],
         'sitemap_per_page' => 2000,

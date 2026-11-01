@@ -1,7 +1,7 @@
 # Azhayon Media public API (v1)
 
 Base URL: `https://api.azhayonmedia.com/api/v1` (local development: `http://127.0.0.1:8000/api/v1`).
-Every endpoint here needs no login and returns JSON. All of them are `GET` except one `POST`, the view counter. The exact shape of every response is defined
+Every endpoint here needs no login and returns JSON. All of them are `GET` except one `POST`, the view counter. The signed-in write endpoints at the end of this file are the only exception.
 in `app/Support/Api/Contract.php`; the TypeScript version is `docs/api-types.ts` (generated, never edited by hand).
 Authentication endpoints (`/auth/*`, `/me`) are server-to-server only and are not part of this public contract.
 
@@ -80,6 +80,12 @@ was counted (drafts, deleted posts, unknown slugs and crawlers look the same). I
 browser, so the rate limit counts the real visitor, and it needs no secret key. A visitor counts once per post per day:
 the server keeps only a salted hash of address and browser, never the address. It adds to `posts.view_count` and to
 `post_views_daily`, so `popular` and `trending` both move. It never changes `updated_at`.
+`GET /posts/{slug}/comments` lists the approved comments of a live post, newest first, each with its approved replies
+(oldest first, one level only). `page` (1–500) and `per_page` (1–50, default 20) page the top-level comments, and
+`meta.comments_total` also counts replies. A post with no comments returns an empty list; a page past the last, or a post
+that is not live, is a 404. Authors are shown by display name only, and deleted or banned users appear as
+`[Deleted User]`. Bodies are plain text, never HTML. The list is cached like the other public endpoints, so a newly
+approved comment can take a few minutes to appear.
 
 ### Categories, tags, series
 | | |
@@ -126,6 +132,17 @@ The frontend's `/preview/{id}` page forwards `expires` and `signature` unchanged
 - Nothing is cached (`private, no-store`). The frontend page must also be `noindex`, send `Referrer-Policy: no-referrer`
   (the link is a credential), use `cache: "no-store"` for the fetch and show a visible "Preview" banner.
 - Preview links are signed with the application key: rotating `APP_KEY` invalidates all of them.
+
+## Signed-in writes (server-to-server only)
+
+These need `Authorization: Bearer <token>` and are called by the frontend's server, never by the browser, so they are not part of the cached public contract. They also need the `X-Frontend-Key` and `X-Client-IP` headers, so rate limits count the real visitor.
+
+`POST /posts/{slug}/comments` with `{ "body": "...", "parent_id": 12, "is_spoiler": false }` (`parent_id` and `is_spoiler` are optional)
+creates a comment and answers `201` with `{ "data": { id, status, parent_id, body, is_spoiler, created_at } }`. A new comment
+is always `pending`: it appears in the public list only after staff approve it. The body is plain text of 2 to 2,000
+characters with at most 2 links; invisible characters are removed. A reply's `parent_id` must be an approved top-level
+comment on the same post. The same text from the same user on the same post within 10 minutes is refused. Limits per user: 3 a minute and 30 a day;
+per visitor address: 20 an hour. Errors: `401` not signed in, `403` banned, `404` post not live, `422` bad input, `429` limit reached.
 
 ## Post content
 
