@@ -1,7 +1,7 @@
 # Azhayon Media public API (v1)
 
 Base URL: `https://api.azhayonmedia.com/api/v1` (local development: `http://127.0.0.1:8000/api/v1`).
-Every endpoint here needs no login and returns JSON. All of them are `GET` except one `POST`, the view counter. The signed-in write endpoints at the end of this file are the only exception.
+Every endpoint here is a `GET` (apart from the three newsletter POSTs below), needs no login and returns JSON. All of them are `GET` except one `POST`, the view counter. The signed-in write endpoints at the end of this file are the only exception.
 in `app/Support/Api/Contract.php`; the TypeScript version is `docs/api-types.ts` (generated, never edited by hand).
 Authentication endpoints (`/auth/*`, `/me`) are server-to-server only and are not part of this public contract.
 
@@ -116,6 +116,19 @@ The frontend's `/search` page must be `noindex`.
 
 Posts marked noindex are left out of the sitemap. A redirect that starts at a live post's address is never listed:
 live posts win. The redirect middleware must drop a trailing slash from the request path before looking it up.
+
+### Newsletter
+| | |
+|---|---|
+| `POST /newsletter/subscribe` | Body `{"email": "..."}`. Always `202` with the same message, whether the address is new, pending or already confirmed, so the form cannot reveal who is subscribed. Sends a confirmation email (at most one every 5 minutes per address). |
+| `POST /newsletter/confirm` | Body `{"token": "..."}`. `200`, or `422` for an unknown or expired (48 hours) token. Repeating a used link stays `200`. |
+| `POST /newsletter/unsubscribe` | Body `{"token": "..."}` (the 40-character token in every newsletter email). `200`, or `404` for an unknown token. Repeating it stays `200`. |
+
+These are the only public POSTs. Call them from Next.js server code with the usual `X-Frontend-Key` and `X-Client-IP`
+headers. Responses are `no-store`. Limits: subscribe 3 a minute and 10 an hour per visitor, plus 3 an hour per address;
+confirm and unsubscribe 20 a minute. The links in the emails point at frontend pages (`/newsletter/confirm?token=…`,
+`/newsletter/unsubscribe?token=…`) that make the POST on a button press: a plain GET never changes anything, so mail
+scanners cannot confirm or unsubscribe anyone.
 
 ### Health
 `GET /health` returns `{"status":"ok","database":"ok"}`, or `503` with `degraded` and `error` when the database is down.

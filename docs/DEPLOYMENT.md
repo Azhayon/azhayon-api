@@ -24,6 +24,7 @@ or `db:wipe` on the server: tests wipe the database they run against.
       `https://api.azhayonmedia.com/api/v1/auth/{google,discord}/callback` added as redirect URIs.
 - [ ] `ADMIN_TIMEZONE` (default Asia/Dhaka), `AUTH_TOKEN_TTL_DAYS` (default 30).
 - [ ] `FRONTEND_API_KEY`: 64 hex characters, identical in the Next.js server environment, never exposed to the browser (no `NEXT_PUBLIC_` prefix).
+- [ ] Mail: `MAIL_MAILER=smtp` with Hostinger's SMTP host, port, username and password (secrets only in `.env`), `MAIL_FROM_ADDRESS` a real mailbox on azhayonmedia.com, `MAIL_FROM_NAME="Azhayon Media"`. The local defaults (`hello@example.com`) must not reach production.
 - [ ] `REVALIDATE_SECRET`: 64 hex characters, identical in the Next.js server environment, never exposed to the browser. Different from `FRONTEND_API_KEY`. Leave `REVALIDATE_URL` empty in production (it defaults to `FRONTEND_URL/api/revalidate`).
 
 ## 3. First deploy
@@ -65,3 +66,4 @@ or `db:wipe` on the server: tests wipe the database they run against.
 - [ ] `/api/v1/sitemap` reports the expected number of indexable posts, and `/api/v1/redirects` lists the expected redirects.
 - [ ] Edit and save a published post, wait a minute, and confirm the frontend received a revalidation request (or run `php artisan revalidate:flush` and read its output).
 - [ ] Preview works end to end: open Preview on a draft in the admin, follow the link on the real site, then confirm a changed character in the signature shows an error page.
+- [ ] SPF, DKIM and DMARC records for azhayonmedia.com are set (hPanel and Cloudflare DNS), then subscribe with a real address: the confirmation email arrives in the inbox (not spam) and its link opens the frontend's `/newsletter/confirm` page.
