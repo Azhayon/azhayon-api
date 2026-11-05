@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\PreviewController;
 use App\Http\Controllers\Api\V1\PostViewController;
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\RatingController;
+use App\Http\Controllers\Api\V1\NewsletterController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -104,6 +105,15 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             ->where('slug', '[a-z0-9-]+')
             ->middleware('throttle:rating');
     });
+
+    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])
+        ->middleware('throttle:newsletter-subscribe');
+
+    Route::post('/newsletter/confirm', [NewsletterController::class, 'confirm'])
+        ->middleware('throttle:newsletter-token');
+
+    Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe'])
+        ->middleware('throttle:newsletter-token');
 
     // Throttled first, so signature guessing is limited. The id is looked up only after the
     // signature checks out, so a missing post and a forged link look the same from outside.

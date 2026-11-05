@@ -84,6 +84,19 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // A burst limit, an hourly limit per visitor, and a per-address limit so one inbox cannot be flooded.
+        RateLimiter::for('newsletter-subscribe', function (Request $request) {
+            $email = mb_strtolower(trim((string) $request->input('email')));
+
+            return [
+                Limit::perMinute(3)->by('newsletter-minute:'.ClientIdentity::ip($request)),
+                Limit::perHour(10)->by('newsletter-hour:'.ClientIdentity::ip($request)),
+                Limit::perHour(3)->by('newsletter-email:'.sha1($email)),
+            ];
+        });
+
+        RateLimiter::for('newsletter-token', fn (Request $request) => Limit::perMinute(20)->by('newsletter-token:'.ClientIdentity::ip($request)));
+
         RateLimiter::for('view', fn (Request $request) => Limit::perMinute(30)->by(ClientIdentity::ip($request)));
     }
 }

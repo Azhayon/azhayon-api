@@ -236,6 +236,8 @@ final class Contract
             'PostResponse' => ['data' => '@PostDetail'],
             'CommentsResponse' => ['data' => ['*' => '@PostComment'], 'meta' => '@CommentsMeta'],
             'CommentCreatedResponse' => ['data' => '@CommentCreated'],
+            'NewsletterMessage' => ['message' => 'string'],
+            'NewsletterResponse' => ['data' => '@NewsletterMessage'],
             'MyRatingResponse' => ['data' => '@MyRating'],
             'CategoriesResponse' => ['data' => ['*' => '@Category']],
             'CategoryResponse' => ['data' => '@CategoryDetail'],

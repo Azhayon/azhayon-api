@@ -398,6 +398,14 @@ export interface CommentCreatedResponse {
   data: CommentCreated;
 }
 
+export interface NewsletterMessage {
+  message: string;
+}
+
+export interface NewsletterResponse {
+  data: NewsletterMessage;
+}
+
 export interface MyRatingResponse {
   data: MyRating;
 }
