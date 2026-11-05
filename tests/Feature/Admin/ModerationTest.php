@@ -12,7 +12,7 @@ use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Redirect;
-use App\Models\Subscriber;
+use App\Models\NewsletterSubscriber;
 use App\Models\User;
 use Filament\Actions\CreateAction;
 use Filament\Facades\Filament;
@@ -224,13 +224,12 @@ class ModerationTest extends TestCase
 
         $this->assertTrue(Gate::forUser($editor)->allows('moderate', $comment));
         $this->assertTrue(Gate::forUser($editor)->denies('viewAny', Redirect::class));
-        $this->assertTrue(Gate::forUser($editor)->denies('viewAny', Subscriber::class));
+        $this->assertTrue(Gate::forUser($editor)->denies('viewAny', NewsletterSubscriber::class));
     }
 
     public function test_admins_can_list_subscribers_but_not_add_them(): void
     {
-        $subscriber = (new Subscriber(['email' => 'reader@example.test']))->forceFill(['token' => Str::random(64)]);
-        $subscriber->save();
+        $subscriber = NewsletterSubscriber::create(['email' => 'reader@example.test']);
 
         $this->actingAs($this->admin());
 
@@ -239,5 +238,10 @@ class ModerationTest extends TestCase
             ->assertCanSeeTableRecords([$subscriber]);
 
         $this->assertFalse(SubscriberResource::canCreate());
+    }
+
+    public function test_the_subscribers_page_lists_the_table_the_signup_api_writes_to(): void
+    {
+        $this->assertSame(NewsletterSubscriber::class, SubscriberResource::getModel());
     }
 }

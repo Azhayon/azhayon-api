@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Subscribers;
 
-use App\Enums\SubscriberStatus;
+use App\Enums\NewsletterStatus;
 use App\Filament\Resources\Subscribers\Pages\ManageSubscribers;
-use App\Models\Subscriber;
+use App\Models\NewsletterSubscriber;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -19,7 +19,7 @@ use UnitEnum;
 
 class SubscriberResource extends Resource
 {
-    protected static ?string $model = Subscriber::class;
+    protected static ?string $model = NewsletterSubscriber::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
 
@@ -54,8 +54,8 @@ class SubscriberResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn ($state) => ucfirst(self::enumValue($state)))
                     ->color(fn ($state): string => match (self::enumValue($state)) {
-                        SubscriberStatus::Confirmed->value => 'success',
-                        SubscriberStatus::Unsubscribed->value => 'gray',
+                        NewsletterStatus::Confirmed->value => 'success',
+                        NewsletterStatus::Unsubscribed->value => 'gray',
                         default => 'warning',
                     })
                     ->sortable(),
@@ -63,14 +63,19 @@ class SubscriberResource extends Resource
                     ->dateTime(timezone: config('azhayon.admin_timezone'))
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('unsubscribed_at')
+                    ->label('Unsubscribed')
+                    ->dateTime(timezone: config('azhayon.admin_timezone'))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Signed up')
                     ->dateTime(timezone: config('azhayon.admin_timezone'))
                     ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('status')->options(collect(SubscriberStatus::cases())->mapWithKeys(
-                    fn (SubscriberStatus $status) => [$status->value => ucfirst($status->value)]
+                SelectFilter::make('status')->options(collect(NewsletterStatus::cases())->mapWithKeys(
+                    fn (NewsletterStatus $status) => [$status->value => ucfirst($status->value)]
                 )->all()),
             ])
             ->defaultSort('created_at', 'desc')
