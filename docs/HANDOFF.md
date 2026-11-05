@@ -34,11 +34,23 @@ The owner works on Windows with PowerShell and prefers incremental edits over fu
 - Dark theme by default with a light toggle; palette #121212 / #1E1E1E / #FF3366 / #00E5FF / #E0E0E0; Space Grotesk + Inter.
 - Ads: auto-inserted after every 4th paragraph, at most 3 per article; a manual ad-break block overrides; consent through Google's certified tool.
 - Cache lifetimes 60 s / 300 s / 600 s stale; 12 posts per page (max 24).
+- Newsletter: double opt-in. Subscribe always answers 202 with the same message. Confirm tokens are stored hashed (48 h), unsubscribe tokens are stored plain so every email can carry a link. Production needs a real MAIL_FROM_ADDRESS (local default is hello@example.com), SMTP settings, SPF/DKIM/DMARC.
 
-## Status (tests: API 307, web 40, all passing)
+## Status (tests: API 374, web 211 before Part 3a, all passing)
 Done: database and models, Google/Discord login, Filament admin, image pipeline, content validator, moderation, redirects,
-link checker, the whole public API, draft preview, API contract and types, PHP 8.4 upgrade, frontend foundation
-(layout, themes, fonts, API client, image loader), and the signed revalidation endpoint tested end to end.
+link checker, the whole public API, draft preview, API contract and types, PHP 8.4 upgrade, frontend foundation,
+signed revalidation, comments, ratings and view counting (5.9a to 5.9d), 5.9e (reader returns to the same post
+after sign-in, via the azm_return cookie and loginHref), and the newsletter API (subscriber table, subscribe/confirm/unsubscribe
+POST endpoints, queued confirmation email, rate limits).
+
+In progress: newsletter frontend (Part 3). Done so far: api-types.ts copied from the API repo.
+Next, in this order:
+- 3a: add `email` and `token` messages to FIELD_MESSAGE in src/lib/action-result.ts, plus a small test; commit.
+- 3b: endpoints.ts functions (POST, noStore, forwardVisitor) and a server action file at src/app/newsletter/actions.ts.
+- 3c: footer sign-up form (client component inside the server SiteFooter, which must stay cacheable).
+- 3d: /newsletter/confirm and /newsletter/unsubscribe pages: dynamic, noindex, no-store, Referrer-Policy no-referrer,
+  a button press makes the POST (never on page load), and /newsletter/ goes into robots.txt.
+- Then docs (docs/API.md newsletter section and DEPLOYMENT.md mail lines, if not yet committed), ads, the hosting gate, launch.
 
 ## Already built on the frontend (do not redo)
 Root layout (metadataBase, noindex while ALLOW_INDEXING=false, self-hosted fonts), light/dark theme (inline script plus the azm_theme cookie,
