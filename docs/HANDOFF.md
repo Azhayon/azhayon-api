@@ -35,22 +35,35 @@ The owner works on Windows with PowerShell and prefers incremental edits over fu
 - Ads: auto-inserted after every 4th paragraph, at most 3 per article; a manual ad-break block overrides; consent through Google's certified tool.
 - Cache lifetimes 60 s / 300 s / 600 s stale; 12 posts per page (max 24).
 - Newsletter: double opt-in. Subscribe always answers 202 with the same message. Confirm tokens are stored hashed (48 h), unsubscribe tokens are stored plain so every email can carry a link. Production needs a real MAIL_FROM_ADDRESS (local default is hello@example.com), SMTP settings, SPF/DKIM/DMARC.
+  Subscribe, confirm and unsubscribe are public server actions on purpose; the tokens and the API's rate limits protect them.
 
-## Status (tests: API 374, web 211 before Part 3a, all passing)
+## Status (tests: API 375, web 225, all passing)
 Done: database and models, Google/Discord login, Filament admin, image pipeline, content validator, moderation, redirects,
 link checker, the whole public API, draft preview, API contract and types, PHP 8.4 upgrade, frontend foundation,
-signed revalidation, comments, ratings and view counting (5.9a to 5.9d), 5.9e (reader returns to the same post
-after sign-in, via the azm_return cookie and loginHref), and the newsletter API (subscriber table, subscribe/confirm/unsubscribe
-POST endpoints, queued confirmation email, rate limits).
+signed revalidation, comments, ratings and view counting (5.9a to 5.9e), and the whole newsletter:
+- API: subscribe (always 202), confirm and unsubscribe endpoints, queued confirmation email, rate limits, docs (commit 36fb094).
+- Web, Part 3 (all committed and pushed): types and error messages (3a), endpoints and server actions (3b, src/app/newsletter/actions.ts,
+  pure helpers in src/lib/newsletter.ts), footer sign-up form with a honeypot (3c, NewsletterForm.tsx, SiteFooter stays cacheable),
+  and the /newsletter/confirm and /newsletter/unsubscribe pages (3d: dynamic, noindex, no-store, no-referrer, the button press makes the POST,
+  /newsletter/ is in robots.txt and has its own header rule in next.config.ts).
+- Admin: the Subscribers page now lists NewsletterSubscriber (the table the API writes to). The old Subscriber model, enum, policy and
+  `subscribers` table were removed (commit 84b3ddc). Policy for the new model: NewsletterSubscriberPolicy.
 
-In progress: newsletter frontend (Part 3). Done so far: api-types.ts copied from the API repo.
+Open items:
+- No email contains an unsubscribe link yet. Sending newsletters will need `{FRONTEND_URL}/newsletter/unsubscribe?token=<unsubscribe_token>`.
+- Local mail uses MAIL_MAILER=log: confirmation emails appear in storage/logs/laravel.log, and `php artisan queue:work --stop-when-empty` must run first.
+  Before launch: real SMTP, a real MAIL_FROM_ADDRESS, MAIL_FROM_NAME without "API", SPF/DKIM/DMARC.
+- Browser checks not yet confirmed: unsubscribe page with a hand-built link, response headers on /newsletter/confirm,
+  the ✕ in AuthNotice.tsx (the © in SiteFooter.tsx looks fine).
+- Four older lint warnings (YouTubeEmbed `<img>`, two unused eslint-disable comments in SignInButton.tsx, one in the generated api-types.ts). No errors.
+
+In progress: ads. Already in the web repo: src/components/ads/AdSlot.tsx (not reviewed yet), src/lib/ads.ts (inArticleAds),
+src/lib/content/ads.ts (adPlacements: every Nth paragraph, ad-break override, max cap), with tests in tests/ads.test.ts and tests/ads-config.test.ts.
 Next, in this order:
-- 3a: add `email` and `token` messages to FIELD_MESSAGE in src/lib/action-result.ts, plus a small test; commit.
-- 3b: endpoints.ts functions (POST, noStore, forwardVisitor) and a server action file at src/app/newsletter/actions.ts.
-- 3c: footer sign-up form (client component inside the server SiteFooter, which must stay cacheable).
-- 3d: /newsletter/confirm and /newsletter/unsubscribe pages: dynamic, noindex, no-store, Referrer-Policy no-referrer,
-  a button press makes the POST (never on page load), and /newsletter/ goes into robots.txt.
-- Then docs (docs/API.md newsletter section and DEPLOYMENT.md mail lines, if not yet committed), ads, the hosting gate, launch.
+- Review AdSlot.tsx: reserved height per placement, nothing loads without consent.
+- Sidebar and anchor placements (only in-article has config logic so far).
+- Google's certified consent tool, then ads.txt.
+- Then the hosting gate (Part E and the deploys), launch checklist, and ALLOW_INDEXING=true.
 
 ## Already built on the frontend (do not redo)
 Root layout (metadataBase, noindex while ALLOW_INDEXING=false, self-hosted fonts), light/dark theme (inline script plus the azm_theme cookie,
