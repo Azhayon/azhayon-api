@@ -37,7 +37,7 @@ The owner works on Windows with PowerShell and prefers incremental edits over fu
 - Newsletter: double opt-in. Subscribe always answers 202 with the same message. Confirm tokens are stored hashed (48 h), unsubscribe tokens are stored plain so every email can carry a link. Production needs a real MAIL_FROM_ADDRESS (local default is hello@example.com), SMTP settings, SPF/DKIM/DMARC.
   Subscribe, confirm and unsubscribe are public server actions on purpose; the tokens and the API's rate limits protect them.
 
-## Status (tests: API 375, web 225, all passing)
+## Status (tests: API 375, web 228, all passing)
 Done: database and models, Google/Discord login, Filament admin, image pipeline, content validator, moderation, redirects,
 link checker, the whole public API, draft preview, API contract and types, PHP 8.4 upgrade, frontend foundation,
 signed revalidation, comments, ratings and view counting (5.9a to 5.9e), and the whole newsletter:
@@ -57,13 +57,14 @@ Open items:
   the ✕ in AuthNotice.tsx (the © in SiteFooter.tsx looks fine).
 - Four older lint warnings (YouTubeEmbed `<img>`, two unused eslint-disable comments in SignInButton.tsx, one in the generated api-types.ts). No errors.
 
-In progress: ads. Already in the web repo: src/components/ads/AdSlot.tsx (not reviewed yet), src/lib/ads.ts (inArticleAds),
-src/lib/content/ads.ts (adPlacements: every Nth paragraph, ad-break override, max cap), with tests in tests/ads.test.ts and tests/ads-config.test.ts.
-Next, in this order:
-- Review AdSlot.tsx: reserved height per placement, nothing loads without consent.
-- Sidebar and anchor placements (only in-article has config logic so far).
-- Google's certified consent tool, then ads.txt.
-- Then the hosting gate (Part E and the deploys), launch checklist, and ALLOW_INDEXING=true.
+In progress: ads, paused until AdSense is approved (no account yet).
+Done: placement logic (inArticleAds, adPlacements), the reserved in-article box (AdSlot.tsx, loads no script yet), and /ads.txt
+(src/app/ads.txt/route.ts, built from the API's ads.client; 404 while ads are off, 503 if the API is down).
+Waiting on AdSense approval, then in this order:
+- 4b: load adsbygoogle.js only when ads are on and consent allows; Google's certified consent tool (set up in the AdSense dashboard).
+- 4c: AdSlot renders a real `<ins>` inside the reserved box, push({}) once per slot.
+- 4d: sidebar and anchor placements, each with a reserved height. The anchor must not cover content or the consent controls.
+Order of work: hosting gate and deploy, publish 20 to 30 real articles, apply for AdSense, enter the real publisher and slot IDs in the admin, then 4b to 4d.
 
 ## Already built on the frontend (do not redo)
 Root layout (metadataBase, noindex while ALLOW_INDEXING=false, self-hosted fonts), light/dark theme (inline script plus the azm_theme cookie,
